@@ -12,13 +12,12 @@ router = APIRouter(
 # endpoint buat tambah sesi lari ke pelari tertentu
 @router.post("/{pelari_id}", response_model=schemas.SesiLariResponse)
 def create_sesi_lari(pelari_id: int, sesi: schemas.SesiLariCreate, db: Session = Depends(get_db)):
-    # Cek dulu, pelarinya ada beneran gak di database
+    # mengecek pelarinya ada nda di database
     db_pelari = db.query(models.Pelari).filter(models.Pelari.id == pelari_id).first()
     if not db_pelari:
         raise HTTPException(status_code=404, detail="Waduh, pelari nggak ketemu bos!")
 
-    # Kalo ada, kita masukin data larinya dan sambungin ke ID pelari
-    # .model_dump() ini fitur Pydantic v2 buat ngekstrak dictionary
+    # Kalo ada, dimasukan data larinya dan sambungkan ke ID pelari
     new_sesi = models.SesiLari(**sesi.model_dump(), pelari_id=pelari_id)
     
     db.add(new_sesi)
@@ -26,7 +25,7 @@ def create_sesi_lari(pelari_id: int, sesi: schemas.SesiLariCreate, db: Session =
     db.refresh(new_sesi)
     return new_sesi
 
-# Endpoint buat ngeliat semua sesi lari dari semua orang
+# Endpoint buat liat semusa sesi lari
 @router.get("/", response_model=list[schemas.SesiLariResponse])
 def get_semua_sesi(db: Session = Depends(get_db)):
     return db.query(models.SesiLari).all()
@@ -34,12 +33,12 @@ def get_semua_sesi(db: Session = Depends(get_db)):
 # Endpoint buat UPDATE sesi lari (PUT)
 @router.put("/{sesi_id}", response_model=schemas.SesiLariResponse)
 def update_sesi_lari(sesi_id: int, sesi_update: schemas.SesiLariCreate, db: Session = Depends(get_db)):
-    # Cari dulu datanya ada apa nggak
+    # cek data ada atau tidak
     db_sesi = db.query(models.SesiLari).filter(models.SesiLari.id == sesi_id).first()
     if not db_sesi:
         raise HTTPException(status_code=404, detail="Data lari nggak ketemu bos!")
     
-    # Kalo ada, kita timpa pake data baru dari user
+    # Kalo ada, timpa pake data baru dari user
     db_sesi.tanggal = sesi_update.tanggal
     db_sesi.rute = sesi_update.rute
     db_sesi.jarak_km = sesi_update.jarak_km

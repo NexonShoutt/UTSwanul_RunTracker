@@ -11,7 +11,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
 
-# Dependency buat dipake di tiap endpoint
+# dependency buat dipake di tiap endpoint
 def get_db():
     db = SessionLocal()
     try:
